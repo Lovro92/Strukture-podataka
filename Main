@@ -1,0 +1,384 @@
+#include<iostream>
+#include<ctime>
+#include<cmath>
+//#include"polja.h"
+#include"pokazivaci.h"
+
+using namespace std;
+tred *red=new tred;
+tred *brzi=new tred;
+tred *pomocni=new tred;
+tred *rekurzivni_salter=new tred;
+
+int N,y=0,brojac_unosa=0,brojac_rekurzija=0,P;
+tklijent polje[MAX];
+int vip=0,b=0,;
+double postotak; 
+
+void ispis_statusa(int x){
+     switch(x){
+               case 1: cout << "Umirovlj.";
+               break;
+               case 2: cout << "Invalidi";
+               break;
+               case 3: cout << "Trudnice";
+               break;
+               case 4: cout << "VIP klijent";
+               break;
+               case 5: cout << "Ostali";
+               break;
+               case 6: cout << "Ne-klijent";
+               }
+     }
+     
+void ispis_transakcije(int x){
+     switch(x){
+               case 1: cout << "Uplata";
+               break;
+               case 2: cout << "Isplata";
+               break;
+               case 3: cout << "Placanje";
+               break;
+               case 4: cout << "Kredit";
+               }
+     }
+     
+void generiraj(int N){ 
+     P=N;
+     int a,b,c,d;
+     int razlika=0;
+     srand(time(0));
+     
+     for(int k=0;k<N;k++){
+                  tklijent *novi=new tklijent;                     
+                  do{
+                                  
+                  a=(rand()%401)+100;
+                  do{
+                  b=(rand()%401)+100;
+                  }while(razlika>b);
+                  c=(rand()%6)+1;
+                  d=rand()%5+1;
+                  }while(d==6 && c%2==0); 
+                  
+                  polje[k].vrijeme_izmedju=a;
+                  polje[k].vrijeme_obrade=b;
+                  polje[k].prioritet=c;
+                  polje[k].tip_transakcije=d;
+                  }//for          
+}
+
+
+void unesi(tred *red){
+     tred *pomocni=new tred;
+     tklijent *novi=new tklijent;
+     
+     for(int i=0;i<N;i++){
+            cout<<"-----------------------------\n"; 
+            cout<<"Molimo unesite:\nIme : ";
+            cin.ignore();
+            cin.getline(polje[i].ime,20);
+            cout<<"Prezime : ";
+            cin.getline(polje[i].prezime,30);
+            do{
+            cout<<"Datum rodjenja:\nDan:",cin>>polje[i].dan,cout<<"Mjesec:",cin>>polje[i].mjesec,cout<<"Godina",cin>>polje[i].godina;
+            }while((polje[i].dan>32 || polje[i].dan<1)||(polje[i].mjesec<1 || polje[i].mjesec>12)|| (polje[i].godina>2012 || polje[i].godina<1921));   
+            do{
+            cout<<"Stanje tekuceg racuna (HRK): ";cin>>polje[i].tekuci;
+            cout<<"Stanje deviznog racuna (E) : ";cin>>polje[i].devizni;
+            }while(polje[i].tekuci<1 || polje[i].tekuci<1);
+            cout<<"Prioritet   " << polje[i].prioritet <<endl;
+            cout<<"Tip transakcije   " << polje[i].tip_transakcije <<endl;
+            cout<<"-----------------------------\n";
+            }
+            
+            cout << "Preslažem klijente po prioritetu..." << endl;
+            
+            
+             for (int i = 1; i < N; i++) {
+             int j = i-1;
+                 tklijent pom = polje[i];
+                 while (j >= 0 && polje[j].prioritet < pom.prioritet)
+                 polje[j+1] = polje[j--];
+                 polje[j+1] = pom;
+                 }  
+                                                                                  
+            for(int i=0; i<N ;i++){
+                    if(polje[i].prioritet==polje[i+1].prioritet){
+                                             if (polje[i].vrijeme_izmedju>polje[i+1].vrijeme_izmedju)
+                                                        swap(polje[i],polje[i+1]);}}
+            
+            cout<<"Klijenti uspjesno preslozeni..." << endl;
+            tred *novi_red=new tred;
+            
+            for(int i=0; i<N ;i++){
+                    tklijent *pom2=new tklijent;
+                    
+                    strcpy(pom2->ime,polje[i].ime);
+                    strcpy(pom2->prezime,polje[i].prezime);
+                    pom2->godina=polje[i].godina;
+                    pom2->mjesec=polje[i].mjesec;
+                    pom2->dan=polje[i].dan;
+                    pom2->tekuci=polje[i].tekuci;
+                    pom2->rbroj=i+1;
+                    pom2->devizni=polje[i].devizni;
+                    pom2->vrijeme_izmedju=polje[i].vrijeme_izmedju;
+                    pom2->vrijeme_obrade=polje[i].vrijeme_obrade;
+                    pom2->prioritet=polje[i].prioritet;
+                    pom2->tip_transakcije=polje[i].tip_transakcije;
+                    EnQueueQ(pom2,red);
+                    }
+         tklijent *proba=FrontQ(red);
+         cout <<"Proba " << proba->prioritet<< endl;   
+         if(IsEmptyQ(red)==true) cout<< "Red je prazan !!! "<< endl;                            
+         cout<<"Ispis svih s vise od 10 000kn u devizama" << endl;
+         for(int h=0;h<N;h++){                  
+                 if(polje[h].devizni*7.53>10000) {
+                                            cout<<"-----------------------------\n";
+                                            cout<<"Ime: " << polje[h].ime << endl;
+                                            cout<<"Prezime:" << polje[h].prezime << endl;
+                                            cout<<"Datum rodjenja:" << polje[h].dan <<"." << polje[h].mjesec << "." << polje[h].godina <<"."<< endl;
+                                            cout<<"Stanje racuna:\n";
+                                            cout<<"Tekuci racun:" << polje[h].tekuci << endl;
+                                            cout<<"Devizni racun:" << polje[h].devizni << endl;
+                                            cout<<"Vrijeme između klijenata:" << polje[h].vrijeme_izmedju << endl;
+                                            cout<<"Vrijeme obrade klijenata:" << polje[h].vrijeme_obrade << endl;
+                                            cout<<"Prioritet kupca :" << polje[h].prioritet << endl;
+                                            cout<<"Tip transakcije :" << polje[h].tip_transakcije << endl;
+                                            cout<<"-----------------------------\n";                            
+                                            }
+                                     }                              
+         //return red;
+}//unesi
+
+
+void brze(tred *red){
+InitQ(brzi);
+InitQ(pomocni);     
+int x=0,b=0;     
+tklijent *brz=new tklijent;
+tklijent *pom5=new tklijent;
+tklijent *pom6=new tklijent;
+
+
+if(IsEmptyQ(red)) {cout<< "Red je prazan !!!" << endl;return;}
+
+while(IsEmptyQ(red)==false){                                    
+pom5=FrontQ(red);
+
+if(pom5->tip_transakcije==3) {
+                             EnQueueQ(pom5,brzi);
+                             DeQueue(red);
+                             }
+else{
+     EnQueueQ(pom5,pomocni);
+     DeQueue(red);
+     //broji iteracije
+}//else
+}
+
+while(IsEmptyQ(pomocni)==false){
+      pom5=FrontQ(pomocni);                    
+      EnQueueQ(pom5,red);
+      DeQueue(pomocni);                    
+      b++;}
+cout<<"========================" << endl;      
+cout<<"---GLAVNI RED---"<< endl;
+for(int i=0;i<b;i++){
+           pom6=FrontQ(red);
+           cout<<"========================" << endl;
+           cout<<"Ime:  " << pom6->ime << endl;
+           cout<<"Prezime: " << pom6->prezime <<endl;
+           cout<<"Datum rodjenja:" << pom6->dan << "." << pom6->mjesec<<"." << pom6->godina << endl;
+           cout<<"Prioritet:\t" , ispis_statusa(pom6->prioritet);
+           cout<<"Tip transakcije:\t", ispis_transakcije(pom6->tip_transakcije);
+           cout<<endl;
+           cout<<"--------------- " << endl;
+           cout<<"Tekuci:\t" << pom6->tekuci <<endl;
+           cout<<"Devizni:"<< pom6->devizni <<endl;;
+           cout<<endl;
+           DeQueue(red);
+           EnQueueQ(pom6,red);
+          
+           } 
+cout<<"========================" << endl;           
+if(IsEmptyQ(brzi)) {cout<< "Nema nikoga u brzom redu !!!" << endl;return;}
+cout<<"========================" << endl;                  
+cout<<"---RED ZA BRZE TRANSAKCIJE---" << endl;
+for(int i=0;i<N-b;i++){
+            brz=FrontQ(brzi);
+            cout<<"========================" << endl;
+            cout<<"Ime:  " << brz->ime << endl;
+            cout<<"Prezime: " << brz->prezime <<endl;
+            cout<<"Datum rodjenja:" << brz->dan << "." << brz->mjesec<<"." << brz->godina << endl;
+            cout<<"Prioritet:\t" , ispis_statusa(brz->prioritet);
+            cout<<endl;
+            cout<<"Tip transakcije:\t", ispis_transakcije(brz->tip_transakcije);
+            cout<<"\n--------------- " << endl;
+            cout<<"Tekuci:\t" << brz->tekuci ;
+            cout<<"\nDevizni:"<< brz->devizni;
+            cout<<endl;
+            DeQueue(brzi);
+            EnQueueQ(brz,red);
+            
+            }
+}//brzired
+
+void brisati(tred *red){    
+     cout<<"Brisanje penzionera i VIP-klijenata " << endl;
+     InitQ(pomocni);
+     int q=0,vip=0,penzioneri=0;
+     tklijent *pom7=new tklijent;
+     tklijent *pom8=new tklijent;
+     tklijent *pom9=new tklijent;
+     
+     while(IsEmptyQ(red)==false){
+                 pom7=FrontQ(red);
+                 if(pom7->prioritet==4 && pom7->godina>1982 && pom7->tip_transakcije==1 && pom7->tekuci<100){
+                                       DeQueue(red);
+                                       vip++,q++;
+                                       }
+                 if(pom7->prioritet==1 && pom7->tekuci>5000 && pom7->tip_transakcije==2){
+                                       DeQueue(red);
+                                       penzioneri++,q++;
+                                       }
+                 else{ 
+                       EnQueueQ(pom7,pomocni);  
+                       DeQueue(red);
+                       }
+                      }//while
+                 
+     cout<<"Izbaceno je " << vip << " VIP klijenata\n";
+     cout<<"Izbaceno je " << penzioneri << " penzionera\n";                  
+     while(IsEmptyQ(pomocni)==false){
+     pom9=FrontQ(pomocni);
+     EnQueueQ(pom9,red);
+     DeQueue(pomocni);
+     b++;
+     }
+     
+     
+     cout<<"---Glavni red---"<< endl;
+     for(int i=0;i<b;i++){          
+           pom8=FrontQ(red);
+           cout<<"========================" << endl;
+           cout<<"Ime:  " << pom8->ime << endl;
+           cout<<"Prezime: " << pom8->prezime <<endl;
+           cout<<"Datum rodjenja:" << pom8->dan << "." << pom8->mjesec<<"." << pom8->godina << endl;
+           cout<<"Prioritet:\t" , ispis_statusa(pom8->prioritet);
+           cout<<endl;
+           cout<<"Tip transakcije:\t", ispis_transakcije(pom8->tip_transakcije);
+           
+           cout<<"\n--------------- " << endl;
+           cout<<"Tekuci:\t" << pom8->tekuci ;
+           cout<<"\nDevizni:"<< pom8->devizni;
+           cout<<endl;
+           DeQueue(red);
+           EnQueueQ(pom8,red);}               
+     }//brisati
+     
+     
+void rekurzija2(){
+if(IsEmptyQ(red)) return; //sidro    
+tklijent *pom12=new tklijent;
+pom12=FrontQ(red);
+DeQueue(red);
+rekurzija2();
+EnQueueQ(pom12,red);
+
+cout<<"Ime:  " << pom12->ime << endl;
+cout<<"Prezime: " << pom12->prezime <<endl;
+cout<<"Datum rodjenja:" << pom12->dan << "." << pom12->mjesec<<"." << pom12->godina << endl;
+cout<<"Prioritet:\t" , ispis_statusa(pom12->prioritet);
+cout<<endl;
+cout<<"Tip transakcije:\t", ispis_transakcije(pom12->tip_transakcije);
+cout<<"\n--------------- " << endl;
+cout<<"Tekuci:\t" << pom12->tekuci ;
+cout<<"\nDevizni:"<< pom12->devizni;
+cout<<endl;
+cout<<"========================" << endl; 
+} 
+
+void rekurzija3(){
+if(IsEmptyQ(rekurzivni_salter)) return; //sidro    
+tklijent *pom13=new tklijent;
+pom13=FrontQ(rekurzivni_salter);
+DeQueue(rekurzivni_salter);
+rekurzija3();
+EnQueueQ(pom13,red);
+
+
+cout<<"Ime:  " << pom13->ime << endl;
+cout<<"Prezime: " << pom13->prezime <<endl;
+cout<<"Datum rodjenja:" << pom13->dan << "." << pom13->mjesec<<"." << pom13->godina << endl;
+cout<<"Prioritet:\t" , ispis_statusa(pom13->prioritet);
+cout<<endl;
+cout<<"Tip transakcije:\t", ispis_transakcije(pom13->tip_transakcije);
+cout<<"\n--------------- " << endl;
+cout<<"Tekuci:\t" << pom13->tekuci ;
+cout<<"\nDevizni:"<< pom13->devizni;
+cout<<endl;
+cout<<"========================" << endl; 
+}//u novom redu 
+
+
+void rekurzija(){
+                      if(IsEmptyQ(red)) return;
+                      
+                      tklijent *pom10=new tklijent;
+                      pom10=FrontQ(red);
+                      DeQueue(red);
+                      rekurzija();                 
+                      if(pom10->rbroj<postotak+1) EnQueueQ(pom10,red);
+                                                 
+                                                                           
+                      else EnQueueQ(pom10,rekurzivni_salter);
+                      //return; 
+                      }
+
+void novi_salter(tred *red){
+     InitQ(rekurzivni_salter); 
+     rekurzija();
+     cout<<"========================" << endl;     
+     cout<<"---GLAVNI RED---"<< endl;
+     rekurzija2();
+     cout<<"========================" << endl;      
+     cout<<"---NOVOOTVORENI RED---"<< endl;
+     cout<<"========================" << endl;  
+     rekurzija3();
+     }
+     
+     
+int main(){
+InitQ(red);
+   
+int izbor=0;
+do{
+     cout<<"Koliko klijenata banke zelite izgenerirati?" << endl;
+     cin>>N;
+     if(N<1) cout<<"Molimo unesite valjan broj klijenata koji generirate !!! \n";
+     }while(N<1);
+postotak=N-(ceil(N*0.3));
+generiraj(N);
+
+do{
+           
+cout<<"---Dobrodosli u red---\n";
+if(IsEmptyQ(red)) cout<< "Red je prazan !!! "<< endl;  
+cout<<endl;
+cout<<"1) Generirajte red \n";
+cout<<"2) Brze transakcije\n";
+cout<<"3) Izbaci VIP klijente i umirovljenike\n";
+cout<<"4) Prebaci 30% klijenata na novi salter\n";
+cout<<"9) Izlaz\n";
+cin>>izbor;
+system("cls");
+switch(izbor){
+             case 1: unesi(red);break;
+             case 2: brze(red);break;
+             case 3: brisati(red);break;
+             case 4: novi_salter(red);
+             break;
+             }//switch
+}while(izbor!=9);
+}//main
